@@ -83,9 +83,12 @@ impl CapabilityProvider for ShellProvider {
             }
 
             shell::OP_INVOKE => {
+
+                let call = deserialize::<shell::InvokeRequest>(msg)?;
+                //TODO: use the actual command and actual args
                 let output = std::process::Command::new("sh")
-                    .arg("-c")
-                    .arg("echo hello")
+                    .arg(call.command)
+                    .args(call.args)
                     .output()
                     .expect("unable to execute shell");
                 let s = String::from_utf8_lossy(&output.stderr);
