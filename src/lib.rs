@@ -1,4 +1,3 @@
-
 #[macro_use]
 extern crate wascc_codec as codec;
 
@@ -8,11 +7,9 @@ extern crate log;
 #[macro_use]
 extern crate serde_derive;
 
-
-
 use codec::capabilities::{CapabilityProvider, Dispatcher, NullDispatcher};
 use codec::core::OP_BIND_ACTOR;
-use codec::deserialize;
+use codec::{deserialize, serialize};
 use wascc_codec::core::CapabilityConfiguration;
 
 use std::error::Error;
@@ -23,7 +20,7 @@ const SYSTEM_ACTOR: &str = "system";
 #[cfg(not(feature = "static_plugin"))]
 capability_provider!(ShellProvider, ShellProvider::new);
 
-const CAPABILITY_ID: &str = "YOLO:FTW"; 
+const CAPABILITY_ID: &str = "YOLO:FTW";
 
 pub struct ShellProvider {
     dispatcher: RwLock<Box<dyn Dispatcher>>,
@@ -33,8 +30,8 @@ impl Default for ShellProvider {
     fn default() -> Self {
         env_logger::init();
 
-        ShellProvider { 
-            dispatcher: RwLock::new(Box::new(NullDispatcher::new())),           
+        ShellProvider {
+            dispatcher: RwLock::new(Box::new(NullDispatcher::new())),
         }
     }
 }
@@ -51,7 +48,7 @@ impl ShellProvider {
         let _config = config.into();
 
         Ok(vec![])
-    }    
+    }
 }
 
 impl CapabilityProvider for ShellProvider {
@@ -70,7 +67,7 @@ impl CapabilityProvider for ShellProvider {
     }
 
     fn name(&self) -> &'static str {
-        "Shell Capability Provider" 
+        "Shell Capability Provider"
     }
 
     // Invoked by host runtime to allow an actor to make use of the capability
@@ -78,27 +75,26 @@ impl CapabilityProvider for ShellProvider {
     fn handle_call(&self, actor: &str, op: &str, msg: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
         trace!("Received host call from {}, operation - {}", actor, op);
 
-        match op {            
+        match op {
             OP_BIND_ACTOR if actor == SYSTEM_ACTOR => {
                 let cfg_vals = deserialize::<CapabilityConfiguration>(msg)?;
 
-                self.configure(cfg_vals)            
+                self.configure(cfg_vals)
             }
-            
+
             shell::OP_INVOKE => {
-                let result = std::process::Command::new("sh")
-                .arg("-c")
-                .arg("echo hello")
-                .output()
-                .expect("it broke");
-                match result {
-                    Ok(output) => {
-                        Ok(vec![])
-                    }
-                }
-                Ok(vec![])
+                let output = std::process::Command::new("sh")
+                    .arg("-c")
+                    .arg("echo hello")
+                    .output()
+                    .expect("unable to execute shell");
+                let s = String::from_utf8_lossy(&output.stderr);
+                let ir: shell::InvokeResponse = shell::InvokeResponse {
+                    output: s.to_string(),
+                };
+                Ok(serialize(ir)?)
             }
-            
+
             _ => Err("bad dispatch".into()),
         }
     }
