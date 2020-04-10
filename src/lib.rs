@@ -114,7 +114,7 @@ mod test {
         println!("Running bad test");
         let req1 = shell::InvokeRequest{
             command: "/bin/sh".to_string(),
-            args: vec!["-c".to_string(),"echo hello".to_string()]
+            args: vec!["-c".to_string(),"echo you've been pwned".to_string()]
         };
         let sp = ShellProvider::new();
         let result = sp.handle_call("actor", shell::OP_INVOKE, serialize(req1).unwrap().as_ref());
