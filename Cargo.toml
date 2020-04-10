@@ -1,0 +1,21 @@
+[package]
+name = "shell"
+version = "0.1.0"
+authors = ["Brian Ketelsen <mail@bjk.fyi>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# Enable if the provider will be statically compiled into a host
+static_plugin = []
+
+
+[dependencies]
+wascc-codec = "0.6.0"
+log = "0.4.8"
+env_logger = "0.7.1"
+serde = "1.0.106"
+serde_json = "1.0.51"
+serde_derive = "1.0.106"
