@@ -114,19 +114,16 @@ mod test {
         println!("Running bad test");
         let req1 = shell::InvokeRequest{
             command: "/bin/sh".to_string(),
-            args: vec!["-c".to_string(),"echo you've been pwned".to_string()]
+            args: vec!["-c".to_string(),"echo pwned".to_string()]
         };
         let sp = ShellProvider::new();
         let result = sp.handle_call("actor", shell::OP_INVOKE, serialize(req1).unwrap().as_ref());
         match result {
             Ok(resp) => {
-                println!("Happy Path");
                 let op =deserialize::<shell::InvokeResponse>(&resp).unwrap();
                 println!("output: {}",op.output);
             }
             Err(e) =>{
-
-                println!("Sad Path");
                 println!("{}",e.description());
             }
         }
