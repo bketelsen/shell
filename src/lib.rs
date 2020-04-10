@@ -85,13 +85,11 @@ impl CapabilityProvider for ShellProvider {
             shell::OP_INVOKE => {
 
                 let call = deserialize::<shell::InvokeRequest>(msg)?;
-                //TODO: use the actual command and actual args
-                let output = std::process::Command::new("sh")
-                    .arg(call.command)
+                let output = std::process::Command::new(call.command)
                     .args(call.args)
                     .output()
                     .expect("unable to execute shell");
-                let s = String::from_utf8_lossy(&output.stderr);
+                let s = String::from_utf8_lossy(&output.stdout);
                 let ir: shell::InvokeResponse = shell::InvokeResponse {
                     output: s.to_string(),
                 };
@@ -104,3 +102,33 @@ impl CapabilityProvider for ShellProvider {
 }
 
 pub mod shell;
+#[cfg(test)]
+mod test {
+    use super::*;
+    use codec::{deserialize, serialize};
+
+    // A quick test to certify that the enum round trip
+    // works fine in message pack
+    #[test]
+    fn execute_bad_things() {
+        println!("Running bad test");
+        let req1 = shell::InvokeRequest{
+            command: "/bin/sh".to_string(),
+            args: vec!["-c".to_string(),"echo hello".to_string()]
+        };
+        let sp = ShellProvider::new();
+        let result = sp.handle_call("actor", shell::OP_INVOKE, serialize(req1).unwrap().as_ref());
+        match result {
+            Ok(resp) => {
+                println!("Happy Path");
+                let op =deserialize::<shell::InvokeResponse>(&resp).unwrap();
+                println!("output: {}",op.output);
+            }
+            Err(e) =>{
+
+                println!("Sad Path");
+                println!("{}",e.description());
+            }
+        }
+    }
+}
