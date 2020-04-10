@@ -12,7 +12,7 @@ pub struct InvokeRequest{
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct InvokeResponse{
-    pub token: String,
+    pub output: String,
 }
 
 #[cfg(test)]

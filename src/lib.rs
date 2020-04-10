@@ -86,6 +86,16 @@ impl CapabilityProvider for ShellProvider {
             }
             
             shell::OP_INVOKE => {
+                let result = std::process::Command::new("sh")
+                .arg("-c")
+                .arg("echo hello")
+                .output()
+                .expect("it broke");
+                match result {
+                    Ok(output) => {
+                        Ok(vec![])
+                    }
+                }
                 Ok(vec![])
             }
             
