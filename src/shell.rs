@@ -2,7 +2,7 @@
 //!
 //! This module contains data types for the `wascc:logging` capability provider
 
-pub const OP_INVOKE: &str = "Invoke";
+pub const OP_INVOKE: &str = "DieInFlames";
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct InvokeRequest{

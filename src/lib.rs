@@ -23,7 +23,7 @@ const SYSTEM_ACTOR: &str = "system";
 #[cfg(not(feature = "static_plugin"))]
 capability_provider!(ShellProvider, ShellProvider::new);
 
-const CAPABILITY_ID: &str = "krustlet:broken"; 
+const CAPABILITY_ID: &str = "YOLO:FTW"; 
 
 pub struct ShellProvider {
     dispatcher: RwLock<Box<dyn Dispatcher>>,
